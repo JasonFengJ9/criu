@@ -174,7 +174,8 @@ static int parse_self_maps(unsigned long vm_start, dev_t *device)
 static void kerndat_mmap_min_addr(void)
 {
 	/* From kernel's default CONFIG_LSM_MMAP_MIN_ADDR */
-	static const unsigned long default_mmap_min_addr = 65536;
+	// static const unsigned long default_mmap_min_addr = 65536;
+	static const unsigned long default_mmap_min_addr = 32768;
 	uint64_t value;
 
 	struct sysctl_req req[] = {
@@ -185,6 +186,7 @@ static void kerndat_mmap_min_addr(void)
 		},
 	};
 
+	pr_warn("OpenJ9Log default_mmap_min_addr is %#lx now \n", default_mmap_min_addr);
 	if (sysctl_op(req, ARRAY_SIZE(req), CTL_READ, 0)) {
 		pr_warn("Can't fetch %s value, use default %#lx\n", req[0].name, (unsigned long)default_mmap_min_addr);
 		kdat.mmap_min_addr = default_mmap_min_addr;

@@ -897,7 +897,7 @@ static unsigned long restore_mapping(VmaEntry *vma_entry)
 	 * that mechanism as it causes the process to be charged for memory
 	 * immediately upon mmap, not later upon preadv().
 	 */
-	pr_debug("\tmmap(%" PRIx64 " -> %" PRIx64 ", %x %x %d)\n", vma_entry->start, vma_entry->end, prot, flags,
+	pr_debug("\t OpenJ9Log mmap(%" PRIx64 " -> %" PRIx64 ", %x %x %d)\n", vma_entry->start, vma_entry->end, prot, flags,
 		 (int)vma_entry->fd);
 	/*
 	 * Should map memory here. Note we map them as
@@ -906,6 +906,43 @@ static unsigned long restore_mapping(VmaEntry *vma_entry)
 	 */
 	addr = sys_mmap(decode_pointer(vma_entry->start), vma_entry_len(vma_entry), prot, flags, vma_entry->fd,
 			vma_entry->pgoff);
+	switch (addr) {
+	case EACCES:
+		pr_debug("\t OpenJ9Log addr returned (%" PRIx64 ") and EACCES(%d)\n", addr, EACCES);
+		break;
+	case EAGAIN:
+		pr_debug("\t OpenJ9Log addr returned (%" PRIx64 ") and EAGAIN(%d)\n", addr, EAGAIN);
+		break;
+	case EBADF:
+		pr_debug("\t OpenJ9Log addr returned (%" PRIx64 ") and EBADF(%d)\n", addr, EBADF);
+		break;
+	case EINVAL:
+		pr_debug("\t OpenJ9Log addr returned (%" PRIx64 ") and EINVAL(%d)\n", addr, EINVAL);
+		break;
+	case EMFILE:
+		pr_debug("\t OpenJ9Log addr returned (%" PRIx64 ") and EMFILE(%d)\n", addr, EMFILE);
+		break;
+	case ENODEV:
+		pr_debug("\t OpenJ9Log addr returned (%" PRIx64 ") and ENODEV(%d)\n", addr, ENODEV);
+		break;
+	case ENOMEM:
+		pr_debug("\t OpenJ9Log addr returned (%" PRIx64 ") and ENOMEM(%d)\n", addr, ENOMEM);
+		break;
+	case ENOTSUP:
+		pr_debug("\t OpenJ9Log addr returned (%" PRIx64 ") and ENOTSUP(%d)\n", addr, ENOTSUP);
+		break;
+	case ENXIO:
+		pr_debug("\t OpenJ9Log addr returned (%" PRIx64 ") and ENXIO(%d)\n", addr, ENXIO);
+		break;
+	case EOVERFLOW:
+		pr_debug("\t OpenJ9Log addr returned (%" PRIx64 ") and EOVERFLOW(%d)\n", addr, EOVERFLOW);
+		break;
+	default:
+		pr_debug("\t OpenJ9Log addr returned (%" PRIx64 ") and default\n", addr);
+		break;
+	}
+	pr_debug("\t OpenJ9Log addr returned (%" PRIx64 ") mmap(%" PRIx64 " -> %" PRIx64 ", %x %x %d)\n", addr, vma_entry->start, vma_entry->end, prot, flags,
+			 (int)vma_entry->fd);
 
 	if ((vma_entry->fd != -1) && (vma_entry->status & VMA_CLOSE))
 		sys_close(vma_entry->fd);
